@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualisation CO₂ - Challenge Open Data</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1>🌍 Émissions CO₂ Mondiales</h1>
+            <div class="nav-buttons">
+                <button id="dataButton" class="nav-btn active">Visualisations</button>
+                <button id="docButton" class="nav-btn">Documentation</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h2>Chargement des données...</h2>
+            <p>Veuillez patienter</p>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip"></div>
+
+    <!-- Section Visualisations -->
+    <div id="dataSection" class="main-section">
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>📅 Période temporelle</label>
+                <div id="yearSlider"></div>
+            </div>
+            
+            <div class="control-group">
+                <label>📊 Métrique</label>
+                <div id="metricToggle"></div>
+            </div>
+        </div>
+
+        <div class="vis-grid">
+            <div class="vis-card full-width">
+                <h2>Carte mondiale des émissions</h2>
+                <div id="worldMap" class="vis-container"></div>
+            </div>
+
+            <div class="vis-card">
+                <h2>Relation PIB / Émissions</h2>
+                <p class="subtitle">Style Gapminder - Taille = Population</p>
+                <div id="gapminderScatter" class="vis-container"></div>
+            </div>
+
+            <div class="vis-card">
+                <h2>Composition énergétique</h2>
+                <p class="subtitle">Mix énergétique par source</p>
+                <div id="stackedArea" class="vis-container"></div>
+            </div>
+
+            <div class="vis-card full-width">
+                <h2>Évolution temporelle comparative</h2>
+                <div id="lineChart" class="vis-container"></div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-content">
+                <h3>🌍 Sélection des pays</h3>
+                <div id="countrySelector"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Documentation -->
+    <div id="docSection" class="main-section" style="display: none;">
+        <div class="doc-content">
+            <h1>Challenge Open Data (5MMCOD7)</h1>
+            <p><strong>Thème :</strong> Évolution des émissions mondiales de CO₂ par pays, région et source d'énergie</p>
+            
+            <div class="members">
+                <div>GHERISSI Abderraahmane</div>
+                <div>ASSIAR Ilyas</div>
+                <div>BOUTAINE Raphaël</div>
+                <div>DJARALLAH Achraf</div>
+                <div>BINI Aladji Kassoum</div>
+            </div>
+
+            <h2>1. Objectif</h2>
+            <p>
+                Ce projet vise à explorer et visualiser l'évolution des émissions de CO₂ à l'échelle mondiale,
+                en mettant l'accent sur trois angles d'analyse complémentaires :
+            </p>
+
+            <div class="highlight-box">
+                <strong>🎯 Trois questions centrales :</strong>
+                <ol>
+                    <li><strong>La géographie des émissions :</strong> Quels pays émettent le plus ? Comment se répartissent les émissions par habitant ?</li>
+                    <li><strong>Le lien économie-environnement :</strong> Peut-on croître économiquement tout en réduisant ses émissions ?</li>
+                    <li><strong>La transition énergétique :</strong> Quelle est la composition des émissions par source d'énergie ? Qui passe du charbon au gaz ?</li>
+                </ol>
+            </div>
+
+            <h2>2. Source des données</h2>
+            <p><strong>Source :</strong> <a href="https://www.kaggle.com/datasets/shreyanshdangi/co-emissions-across-countries-regions-and-sectors" target="_blank">Kaggle - CO₂ Emissions Across Countries, Regions, & Sectors</a></p>
+            <ul>
+                <li><strong>Période :</strong> 2000-2023</li>
+                <li><strong>Pays :</strong> 57 pays sélectionnés</li>
+                <li><strong>Lignes de données :</strong> 1,368</li>
+                <li><strong>Taille fichier :</strong> 0.42 MB</li>
+            </ul>
+
+            <h3>Variables utilisées</h3>
+            <ul>
+                <li><code>co2</code> : Émissions totales</li>
+                <li><code>co2_per_capita</code> : Émissions par habitant</li>
+                <li><code>gdp</code>, <code>population</code>, <code>coal_co2</code>, <code>oil_co2</code>, <code>gas_co2</code>, <code>cement_co2</code></li>
+            </ul>
+
+            <h2>3. Visualisations</h2>
+            <ul>
+                <li><strong>Carte mondiale choroplèthe :</strong> Répartition géographique des émissions</li>
+                <li><strong>Scatterplot PIB vs CO₂ :</strong> Corrélation entre économie et émissions</li>
+                <li><strong>Stacked Area :</strong> Composition des émissions par source d'énergie</li>
+                <li><strong>Line Chart :</strong> Évolution temporelle par pays</li>
+            </ul>
+
+            <h2>4. Sélecteurs et interactions</h2>
+            <ul>
+                <li>Année : Slider 2000–2023</li>
+                <li>Pays : Multi-sélection</li>
+                <li>Métrique : Total vs Par habitant</li>
+                <li>Source d'énergie : Filtrage par type</li>
+            </ul>
+            <p>Toutes les visualisations sont synchronisées via un pattern <strong>Observer</strong>.</p>
+
+            <h2>5. Technologies utilisées</h2>
+            <div class="highlight-box">
+                <strong>⚠️ Contrainte :</strong> Utilisation exclusive de <strong>D3.js v7</strong>.
+            </div>
+            <ul>
+                <li><strong>HTML5 / CSS3 / JS ES6+</strong></li>
+                <li><strong>D3.js</strong> pour les graphiques</li>
+                <li><strong>TopoJSON</strong> pour les cartes</li>
+            </ul>
+
+            <h2>6. Traitement des données</h2>
+            <ol>
+                <li>Filtrage de la période 2000–2023</li>
+                <li>Sélection des principaux pays</li>
+                <li>Compression et conversion CSV → JS</li>
+            </ol>
+
+            <div class="highlight-box">
+                <p><strong>Pourquoi cette réduction ?</strong> Le dataset complet contenait 40 000 lignes. Une compression intelligente a permis de réduire 90% de la taille tout en conservant 95% de l'information utile.</p>
+            </div>
+
+            <h2>7. Insights et analyses</h2>
+            <ul>
+                <li><strong>Chine :</strong> Plus gros émetteur depuis 2005</li>
+                <li><strong>États-Unis :</strong> En baisse depuis 2007</li>
+                <li><strong>Inde :</strong> +150% d’émissions depuis 2000</li>
+                <li><strong>Europe :</strong> -25% depuis 2005</li>
+            </ul>
+
+            <h2>8. Références</h2>
+            <ul>
+                <li><a href="https://www.kaggle.com/datasets/shreyanshdangi/co-emissions-across-countries-regions-and-sectors" target="_blank">Dataset Kaggle</a></li>
+                <li><a href="https://d3js.org/" target="_blank">D3.js Documentation</a></li>
+                <li><a href="https://ourworldindata.org/co2-emissions" target="_blank">Our World in Data</a></li>
+            </ul>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <strong>📅 Année Universitaire 2025/2026</strong><br>
+                <strong>📚 Ensimag - 3ème année</strong><br>
+                <strong>👨‍🏫 Professeurs :</strong> Renaud Blanch, Sylvain Bouveret
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <script src="js/data.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/tooltip.js"></script>
+    <script src="js/plots/worldMap.js"></script>
+    <script src="js/plots/gapminderScatter.js"></script>
+    <script src="js/plots/stackedArea.js"></script>
+    <script src="js/plots/lineChart.js"></script>
+    <script src="js/selectors/yearSlider.js"></script>
+    <script src="js/selectors/metricToggle.js"></script>
+    <script src="js/selectors/countrySelector.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
