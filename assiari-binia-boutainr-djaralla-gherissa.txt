@@ -1,0 +1,34 @@
+
+#+TITLE: Commentaires détaillés pour le projet Challenge Open Data
+#+AUTHOR: Sylvain Bouveret, Renaud Blanch
+# send-to: Ilyas ASSIAR<Ilyas.Assiar@grenoble-inp.org>, Aladji Kassoum BINI<Aladji-Kassoum.Bini@grenoble-inp.org>, Raphael BOUTAINE<Raphael.Boutaine@grenoble-inp.org>, Achraf DJARALLAH<Achraf.Djarallah@grenoble-inp.org>, Abderrahmane GHERISSI<Abderrahmane.Gherissi@grenoble-inp.org>
+
+Vous avez opté pour un jeu de données Kaggle, ce qui présente l'énorme
+avantage de vous fournir des données déjà nettoyées et prêtes à
+l'emploi. Bonne idée donc. En outre, le sujet choisi (émissions de
+CO2) entre tout-à-fait dans les thématiques du projet.
+
+Pour le reste, les visualisations que vous proposez correspondent à
+des propositions extrêmement classiques pour ce genre de données. Ça
+ne pose pas spécialement de problème, mais on ne comprend pas bien la
+motivation derrière ces visus. Par exemple : vous proposez comme
+premier module une carte mondiale des émissions. OK, mais pourquoi
+exactement ? Que voulez-vous mettre exactement en évidence ? Que
+voulez-vous révéler derrière le jeu de données ?
+
+On voit que cette motivation n'est pas extrêmement claire pour vous :
+dans la section 2 de votre rapport, vous indiquez qu'il « est donc
+crucial de mieux comprendre quels sont les secteurs les plus
+polluants ». Néanmoins, on ne voit pas bien comment vos données vont
+exactement répondre à cette motivation. À ce qu'il me semble, le jeu
+de données ne contient aucune information sur les secteurs polluants.
+
+En bref, si vous voulez aller un peu au-delà des représentations
+graphiques usuelles et convenues sur les émissions de CO2 par pays, il
+faudra peut-être refaire une passe de réflexion sur les motivations.
+
+Remarque au passage : la section 3 de votre rapport pourrait être
+enlevée. Elle ne contient que des choses très générales et aucune
+information réellement utile à la compréhension de votre projet.
+
+
