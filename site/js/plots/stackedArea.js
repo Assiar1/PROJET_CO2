@@ -1,176 +1,226 @@
-graphs.push(class StackedAreaChart {
-    constructor() {
-        this.containerId = "stackedArea";
-        this.svg = null;
-        this.width = 700;
-        this.height = 400;
-        this.margin = { top: 40, right: 150, bottom: 60, left: 60 };
-    }
+/**
+ * Stacked Area Chart: Composition des émissions par source d'énergie
+ * Compatible avec classe State
+ */
 
+class StackedArea {
     async initialize() {
-        this.svg = d3.select(`#${this.containerId}`)
-            .append('svg')
-            .attr('width', '100%')
-            .attr('height', '100%')
-            .attr('viewBox', `0 0 ${this.width} ${this.height}`);
-
-        this.chartGroup = this.svg.append('g')
-            .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
-
-        const innerWidth = this.width - this.margin.left - this.margin.right;
-        const innerHeight = this.height - this.margin.top - this.margin.bottom;
-
-        // Axes
-        this.xAxis = this.chartGroup.append('g')
-            .attr('transform', `translate(0,${innerHeight})`);
-
-        this.yAxis = this.chartGroup.append('g');
-
-        // Labels
-        this.svg.append("text")
-            .attr("class", "axis-label")
-            .attr("x", this.width / 2)
-            .attr("y", this.height - 10)
-            .attr("text-anchor", "middle")
-            .text("Année");
-
-        this.svg.append("text")
-            .attr("class", "axis-label")
-            .attr("transform", "rotate(-90)")
-            .attr("x", -this.height / 2)
-            .attr("y", 20)
-            .attr("text-anchor", "middle")
-            .text("Émissions CO₂ (Mt)");
-
-        // Légende
-        this.createLegend();
-
-        state.subscribe(this.update.bind(this));
-    }
-
-    createLegend() {
-        const categories = [
-            { key: 'coal_co2', label: 'Charbon', color: '#8B4513' },
-            { key: 'oil_co2', label: 'Pétrole', color: '#2F4F4F' },
-            { key: 'gas_co2', label: 'Gaz', color: '#4169E1' },
-            { key: 'cement_co2', label: 'Ciment', color: '#808080' }
-        ];
-
-        const legend = this.svg.append('g')
-            .attr('class', 'legend')
-            .attr('transform', `translate(${this.width - 130}, ${this.margin.top})`);
-
-        categories.forEach((cat, i) => {
-            const legendRow = legend.append('g')
-                .attr('transform', `translate(0, ${i * 25})`);
-
-            legendRow.append('rect')
-                .attr('width', 18)
-                .attr('height', 18)
-                .attr('fill', cat.color);
-
-            legendRow.append('text')
-                .attr('x', 25)
-                .attr('y', 14)
-                .style('font-size', '14px')
-                .text(cat.label);
-        });
-
-        this.categories = categories;
-    }
-
-    update(state) {
-        // Récupérer données des pays sélectionnés
-        const selectedData = state.getSelectedCountriesData();
+        const container = d3.select("#stackedArea");
+        const margin = {top: 20, right: 100, bottom: 50, left: 60};
+        const width = 450 - margin.left - margin.right;
+        const height = 350 - margin.top - margin.bottom;
         
-        if (selectedData.length === 0) return;
-
-        // Pour simplifier, on prend le premier pays sélectionné
-        const countryData = selectedData[0].data
-            .filter(d => d.year >= 2000 && d.year <= 2023)
-            .sort((a, b) => a.year - b.year);
-
-        const innerWidth = this.width - this.margin.left - this.margin.right;
-        const innerHeight = this.height - this.margin.top - this.margin.bottom;
-
-        // Préparer les données pour le stack
-        const keys = ['coal_co2', 'oil_co2', 'gas_co2', 'cement_co2'];
-        const stackData = d3.stack()
-            .keys(keys)
-            .value((d, key) => d[key] || 0)
-            (countryData);
-
+        const svg = container.append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+        
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+        
         // Échelles
-        const xScale = d3.scaleLinear()
-            .domain([2000, 2023])
-            .range([0, innerWidth]);
-
-        const yMax = d3.max(stackData[stackData.length - 1], d => d[1]);
-        const yScale = d3.scaleLinear()
-            .domain([0, yMax])
-            .range([innerHeight, 0])
-            .nice();
-
-        // Mise à jour axes
-        this.xAxis.transition().duration(500)
-            .call(d3.axisBottom(xScale).tickFormat(d3.format('d')));
-
-        this.yAxis.transition().duration(500)
-            .call(d3.axisLeft(yScale));
-
-        // Area generator
-        const area = d3.area()
-            .x(d => xScale(d.data.year))
-            .y0(d => yScale(d[0]))
-            .y1(d => yScale(d[1]))
-            .curve(d3.curveMonotoneX);
-
-        // Bind data
-        const layers = this.chartGroup.selectAll('.layer')
-            .data(stackData, d => d.key);
-
-        // Enter
-        const enterLayers = layers.enter()
-            .append('path')
-            .attr('class', 'layer')
-            .attr('fill', d => {
-                const cat = this.categories.find(c => c.key === d.key);
-                return cat ? cat.color : '#ccc';
-            })
-            .attr('opacity', 0.8);
-
-        // Update
-        layers.merge(enterLayers)
-            .transition()
-            .duration(500)
-            .attr('d', area);
-
-        // Exit
-        layers.exit().remove();
-
-        // Interactions
-        this.chartGroup.selectAll('.layer')
-            .on('mouseover', function(event, d) {
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .attr('opacity', 1);
-            })
-            .on('mouseout', function() {
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .attr('opacity', 0.8);
-            });
-
-        // Tooltip
-        tooltip(this.chartGroup.selectAll('.layer'), d => {
-            const cat = this.categories.find(c => c.key === d.key);
-            const total = d3.sum(d, point => point[1] - point[0]);
-            return `
-                <strong>${cat.label}</strong><br/>
-                Total: ${total.toFixed(2)} Mt CO₂
-            `;
+        const xScale = d3.scaleLinear().range([0, width]);
+        const yScale = d3.scaleLinear().range([height, 0]);
+        
+        // Axes
+        const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
+        const yAxis = d3.axisLeft(yScale).tickFormat(d => utils.formatCompact(d));
+        
+        const xAxisG = g.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`);
+        
+        const yAxisG = g.append("g")
+            .attr("class", "axis");
+        
+        // Labels
+        g.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + 40)
+            .text("Année");
+        
+        g.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 2)
+            .attr("y", -45)
+            .text("Émissions CO₂ (Mt)");
+        
+        // Couleurs pour chaque source
+        const colors = {
+            coal: "#8B4513",
+            oil: "#FF4500",
+            gas: "#4169E1",
+            cement: "#808080"
+        };
+        
+        const sources = ['coal', 'oil', 'gas', 'cement'];
+        const sourceLabels = {
+            coal: 'Charbon',
+            oil: 'Pétrole',
+            gas: 'Gaz',
+            cement: 'Ciment'
+        };
+        
+        // Légende
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width + margin.left + 10}, ${margin.top})`);
+        
+        sources.forEach((source, i) => {
+            const legendItem = legend.append("g")
+                .attr("class", "legend-item")
+                .attr("transform", `translate(0, ${i * 25})`);
+            
+            legendItem.append("rect")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", colors[source]);
+            
+            legendItem.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .text(sourceLabels[source]);
         });
+        
+        const tooltip = d3.select("#tooltip");
+        
+        function update(currentState) {
+            // Si aucun pays sélectionné
+            if (!currentState.selectedCountry) {
+                g.selectAll(".area").remove();
+                g.selectAll(".no-data-message").remove();
+                
+                g.append("text")
+                    .attr("class", "no-data-message")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .style("fill", "#999")
+                    .style("font-size", "14px")
+                    .text("Cliquez sur un pays de la carte");
+                
+                return;
+            }
+            
+            // Supprimer le message
+            g.selectAll(".no-data-message").remove();
+            
+            // Filtrer données pour le pays sélectionné
+            let data = currentState.getTemporalData();
+            
+            if (data.length === 0) {
+                g.selectAll(".area").remove();
+                return;
+            }
+            
+            // Grouper par année
+            const byYear = d3.rollup(
+                data,
+                v => ({
+                    coal: d3.sum(v, d => d.coal_co2 || 0),
+                    oil: d3.sum(v, d => d.oil_co2 || 0),
+                    gas: d3.sum(v, d => d.gas_co2 || 0),
+                    cement: d3.sum(v, d => d.cement_co2 || 0)
+                }),
+                d => d.year
+            );
+            
+            const chartData = Array.from(byYear, ([year, emissions]) => ({
+                year,
+                ...emissions
+            })).sort((a, b) => a.year - b.year);
+            
+            if (chartData.length === 0) return;
+            
+            // Stack les données
+            const stack = d3.stack()
+                .keys(sources)
+                .order(d3.stackOrderNone)
+                .offset(d3.stackOffsetNone);
+            
+            const series = stack(chartData);
+            
+            // Mettre à jour les échelles
+            xScale.domain(d3.extent(chartData, d => d.year));
+            yScale.domain([0, d3.max(series, s => d3.max(s, d => d[1]))]);
+            
+            // Mettre à jour les axes
+            xAxisG.call(xAxis);
+            yAxisG.call(yAxis);
+            
+            // Area generator
+            const area = d3.area()
+                .x(d => xScale(d.data.year))
+                .y0(d => yScale(d[0]))
+                .y1(d => yScale(d[1]))
+                .curve(d3.curveMonotoneX);
+            
+            // Dessiner les areas
+            const areas = g.selectAll(".area")
+                .data(series, d => d.key);
+            
+            // Enter
+            areas.enter().append("path")
+                .attr("class", "area")
+                .attr("fill", d => colors[d.key])
+                .attr("d", area)
+                .style("opacity", 0)
+                .on("mouseover", handleMouseOver)
+                .on("mouseout", handleMouseOut)
+                .transition()
+                .duration(500)
+                .style("opacity", 0.8);
+            
+            // Update
+            areas.transition()
+                .duration(500)
+                .attr("d", area)
+                .attr("fill", d => colors[d.key]);
+            
+            // Exit
+            areas.exit()
+                .transition()
+                .duration(300)
+                .style("opacity", 0)
+                .remove();
+        }
+        
+        function handleMouseOver(event, d) {
+            const [x, y] = d3.pointer(event);
+            const year = Math.round(xScale.invert(x));
+            const dataPoint = d.find(p => p.data.year === year);
+            
+            if (dataPoint) {
+                const value = dataPoint[1] - dataPoint[0];
+                tooltip
+                    .style("display", "block")
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY - 15) + "px")
+                    .html(`
+                        <strong>${sourceLabels[d.key]}</strong><br>
+                        Année: ${year}<br>
+                        Émissions: ${utils.formatNumber(value, 2)} Mt
+                    `);
+            }
+            
+            d3.select(event.currentTarget).style("opacity", 1);
+        }
+        
+        function handleMouseOut() {
+            tooltip.style("display", "none");
+            d3.selectAll(".area").style("opacity", 0.8);
+        }
+        
+        state.subscribe(update);
+        update(state);
     }
-});
+}
+
+// Ajouter à la liste des graphiques
+graphs.push(StackedArea);
