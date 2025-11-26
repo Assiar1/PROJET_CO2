@@ -6,7 +6,7 @@ class State {
         this.dataByCountry = new Map();
         
         // État de l'interface
-        this.currentYear = 2023;
+        this.currentYear = DATA_RANGES.years[1];
         this.selectedCountries = new Set();
         this.metric = 'co2_per_capita'; // ou 'co2'
         this.compareMode = false;

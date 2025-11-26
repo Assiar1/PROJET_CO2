@@ -24,7 +24,7 @@ async function initialize() {
         console.log('📈 Initialisation des graphiques...');
         for (const GraphClass of graphs) {
             const graph = new GraphClass();
-            await graph.initialize();
+            await graph.initialize();   
         }
         
         // Initialiser tous les sélecteurs

@@ -83,7 +83,7 @@ selectors.push(class YearSlider {
             }
             
             state.setYear(nextYear);
-        }, 800); // Change d'année toutes les 800ms
+        }, 100); // Change d'année toutes les 800ms
     }
 
     stop() {
