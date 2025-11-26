@@ -9,7 +9,7 @@ const LABELS = {
 
 // Main application initialization
 async function initialize() {
-    console.log('🚀 Initialisation de l\'application CO2...');
+    console.log('Initialisation de l\'application CO2...');
     
     // Afficher le loader
     const loader = document.getElementById('loader');
@@ -17,18 +17,18 @@ async function initialize() {
     
     try {
         // Initialiser l'état avec les données
-        console.log('📊 Chargement des données...');
+        console.log('Chargement des données...');
         state.initialize(DATA);
         
         // Initialiser tous les graphiques
-        console.log('📈 Initialisation des graphiques...');
+        console.log('Initialisation des graphiques...');
         for (const GraphClass of graphs) {
             const graph = new GraphClass();
             await graph.initialize();   
         }
         
         // Initialiser tous les sélecteurs
-        console.log('🎛️ Initialisation des contrôles...');
+        console.log('Initialisation des contrôles...');
         for (const SelectorClass of selectors) {
             new SelectorClass();
         }
@@ -36,10 +36,10 @@ async function initialize() {
         // Première mise à jour
         state.notify();
         
-        console.log('✅ Application prête !');
+        console.log('Application prête !');
         
     } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation:', error);
+        console.error('Erreur lors de l\'initialisation:', error);
         alert('Erreur lors du chargement des données. Consultez la console.');
     } finally {
         // Masquer le loader

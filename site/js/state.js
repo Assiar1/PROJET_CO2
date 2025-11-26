@@ -37,7 +37,7 @@ class State {
             this.dataByCountry.get(d.iso_code).push(d);
         });
         
-        console.log('✅ State initialized:', {
+        console.log('Class State initialized:', {
             totalRecords: this.rawData.length,
             years: Array.from(this.dataByYear.keys()).sort(),
             countries: this.dataByCountry.size
