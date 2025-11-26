@@ -27,7 +27,7 @@ class WorldMap {
         
         // Échelle de couleur pour l'évolution temporelle
         const timeColorScale = d3.scaleSequential(d3.interpolateRdYlGn)
-            .domain([2000, 2023]);
+            .domain([1930, 2023]);
         
         const tooltip = d3.select("#tooltip");
         
@@ -43,7 +43,7 @@ class WorldMap {
             .then(world => {
                 container.select(".loading").remove();
                 
-                console.log("✅ GeoJSON chargé:", world.features.length, "pays");
+                console.log("GeoJSON chargé:", world.features.length, "pays");
                 
                 // Dessiner les pays
                 const countries = g.selectAll("path")
@@ -56,18 +56,30 @@ class WorldMap {
                     .on("mouseout", handleMouseOut)
                     .on("click", handleClick);
                 
-                function update(currentState) {
-                    countries.each(function(d) {
-                        const iso = d.id;
-                        const countryPath = d3.select(this);
-                        const temporalData = getCountryTemporalData(iso);
-                        
-                        if (temporalData.length === 0) {
-                            countryPath
-                                .attr("fill", "#e0e0e0")
-                                .classed("no-data", true);
-                            return;
-                        }
+function update(currentState) {
+    countries.each(function(d) {
+        const iso = d.id;
+        const countryName = state.getCountryName(iso); // ← AJOUT
+        const countryPath = d3.select(this);
+        const temporalData = getCountryTemporalData(iso);
+        
+        // ⛔️ FILTRE ANTARCTICA - Masquer complètement
+        if (countryName === "Antarctica") {
+            countryPath
+                .attr("fill", "transparent")
+                .attr("stroke", "transparent")
+                .style("cursor", "default")
+                .classed("no-data", true);
+            return;
+        }
+        
+        if (temporalData.length === 0) {
+            countryPath
+                .attr("fill", "#e0e0e0")
+                .classed("no-data", true);
+            return;
+        }
+                  
                         
                         // Calculer le centroïde du pays
                         const centroid = path.centroid(d);
@@ -85,7 +97,7 @@ class WorldMap {
                             .attr("r", "50%");
                         
                         // Créer les stops du gradient basés sur l'évolution des émissions
-                        const years = [2000, 2005, 2010, 2015, 2020, 2023];
+                       const years = [1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020,2023];
                         const yearData = years.map(year => {
                             const data = temporalData.find(d => d.year === year);
                             return data ? data.co2 : 0;
@@ -177,14 +189,14 @@ class WorldMap {
                             <strong>${name}</strong><br>
                             <div style="margin: 8px 0; padding: 8px; background: #f9fafb; border-radius: 4px;">
                                 <strong>Évolution 2000-2023 ${trend}</strong><br>
-                                <span style="color: #4ade80;">2000: ${utils.formatNumber(oldestData.co2, 2)} Mt</span><br>
+                                <span style="color: #4ade80;">1930: ${utils.formatNumber(oldestData.co2, 2)} Mt</span><br>
                                 <span style="color: ${trendColor};">2023: ${utils.formatNumber(recentData.co2, 2)} Mt</span><br>
                                 <span style="color: ${trendColor}; font-weight: bold;">
                                     ${change > 0 ? '+' : ''}${changePercent}%
                                 </span>
                             </div>
                             <small style="color: #999;">
-                                💡 Centre = 2023, Bord = 2000<br>
+                                💡 Centre = 2023, Bord = 1930<br>
                                 Cliquez pour voir les détails
                             </small>
                         `);
@@ -207,14 +219,22 @@ class WorldMap {
                 
                 function handleClick(event, d) {
                     const iso = d.id;
+                    const countryName = state.getCountryName(iso);
+                    
+                    // ⛔️ FILTRE ANTARCTICA
+                    if (countryName === "Antarctica") {
+                        console.log("❌ Antarctica ignoré - pas de données");
+                        return; // Ne rien faire
+                    }
+                    
                     const temporalData = getCountryTemporalData(iso);
                     
                     if (temporalData.length > 0) {
-                        console.log("🖱️ Clic sur:", state.getCountryName(iso));
+                        console.log("🖱️ Clic sur:", countryName);
                         state.selectCountryForEnergy(iso);
                     }
                 }
-                
+                                
                 // S'abonner aux changements
                 state.subscribe(update);
                 update(state);
@@ -299,7 +319,7 @@ class WorldMap {
                 .style("font-size", "10px")
                 .style("fill", "#4ade80")
                 .style("font-weight", "bold")
-                .text("2000");
+                .text("1930");
             
             // Flèche
             legendGroup.append("path")
@@ -328,7 +348,7 @@ class WorldMap {
                 .attr("text-anchor", "middle")
                 .style("font-size", "10px")
                 .style("fill", "#666")
-                .text("Bord → Centre = 2000 → 2023");
+                .text("Bord → Centre = 1930 → 2023");
         }
         
         // Obtenir les données temporelles d'un pays

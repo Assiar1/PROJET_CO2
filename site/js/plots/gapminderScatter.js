@@ -77,7 +77,7 @@ graphs.push(class GapminderScatter {
             .style("opacity", 0.5);
 
         this.strokeScale = d3.scaleLinear()
-            .domain([0, d3.max(DATA, d => d.co2_per_capita)])
+            .domain([DATA_RANGES.co2_per_capita[0], DATA_RANGES.co2_per_capita[1]])
             .range([1, 40]);
 
         // bind update and subscribe
