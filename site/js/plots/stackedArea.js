@@ -6,7 +6,7 @@
 class StackedArea {
     async initialize() {
         const container = d3.select("#stackedArea");
-        const margin = {top: 20, right: 100, bottom: 50, left: 60};
+        const margin = {top: 50, right: 100, bottom: 50, left: 60};
         const width = 450 - margin.left - margin.right;
         const height = 350 - margin.top - margin.bottom;
         
@@ -18,6 +18,17 @@ class StackedArea {
         
         const g = svg.append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
+        
+        // Titre du pays sélectionné
+        const countryTitle = svg.append("text")
+            .attr("class", "country-title")
+            .attr("x", (width + margin.left + margin.right) / 2)
+            .attr("y", 20)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .style("fill", "#333")
+            .text("");
         
         // Échelles
         const xScale = d3.scaleLinear().range([0, width]);
@@ -95,6 +106,7 @@ class StackedArea {
             if (!currentState.selectedCountry) {
                 g.selectAll(".area").remove();
                 g.selectAll(".no-data-message").remove();
+                countryTitle.text("");
                 
                 g.append("text")
                     .attr("class", "no-data-message")
@@ -107,6 +119,10 @@ class StackedArea {
                 
                 return;
             }
+            
+            // Afficher le nom du pays
+            const countryName = currentState.getCountryName(currentState.selectedCountry);
+            countryTitle.text(`${countryName}`);
             
             // Supprimer le message
             g.selectAll(".no-data-message").remove();
