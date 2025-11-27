@@ -236,7 +236,7 @@ const ISO_CODES = ["ABW", "AFG", "AGO", "AIA", "ALB", "AND", "ARE", "ARG", "ARM"
 
 // Ranges pour les échelles
 const DATA_RANGES = {
-    years: [1930, 2023],
+    years: [1930, 2022],
     co2: [0.00, 11902.50],
     co2_per_capita: [0.00, 85.56],
     gdp: [55432000, 26966000000000],
