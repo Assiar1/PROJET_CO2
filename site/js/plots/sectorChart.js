@@ -62,8 +62,8 @@ class SectorChart {
                     .attr("class", "no-data-message")
                     .attr("text-anchor", "middle")
                     .style("fill", "#999")
-                    .style("font-size", "14px")
-                    .text("Sélectionnez un pays");
+                    .style("font-size", "20px")
+                    .text("Sélectionnez un pays sur la carte ==>");
                 
                 return;
             }

@@ -114,8 +114,8 @@ class StackedArea {
                     .attr("y", height / 2)
                     .attr("text-anchor", "middle")
                     .style("fill", "#999")
-                    .style("font-size", "14px")
-                    .text("Cliquez sur un pays de la carte");
+                    .style("font-size", "20px")
+                    .text("Sélectionnez un pays sur la carte ==>");
                 
                 return;
             }

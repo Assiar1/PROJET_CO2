@@ -63,7 +63,7 @@ function update(currentState) {
         const countryPath = d3.select(this);
         const temporalData = getCountryTemporalData(iso);
         
-        // ⛔️ FILTRE ANTARCTICA - Masquer complètement
+        // FILTRE ANTARCTICA - Masquer complètement
         if (countryName === "Antarctica") {
             countryPath
                 .attr("fill", "transparent")
@@ -196,7 +196,7 @@ function update(currentState) {
                                 </span>
                             </div>
                             <small style="color: #999;">
-                                💡 Centre = 2023, Bord = 1930<br>
+                                 Centre = 2023, Bord = 1930<br>
                                 Cliquez pour voir les détails
                             </small>
                         `);
@@ -221,16 +221,16 @@ function update(currentState) {
                     const iso = d.id;
                     const countryName = state.getCountryName(iso);
                     
-                    // ⛔️ FILTRE ANTARCTICA
+                    // FILTRE ANTARCTICA
                     if (countryName === "Antarctica") {
-                        console.log("❌ Antarctica ignoré - pas de données");
+                        console.log(" Antarctica ignoré - pas de données");
                         return; // Ne rien faire
                     }
                     
                     const temporalData = getCountryTemporalData(iso);
                     
                     if (temporalData.length > 0) {
-                        console.log("🖱️ Clic sur:", countryName);
+                        console.log(" Clic sur:", countryName);
                         state.selectCountryForEnergy(iso);
                     }
                 }
@@ -243,7 +243,7 @@ function update(currentState) {
                 createRadialLegend();
             })
             .catch(error => {
-                console.error("❌ Erreur chargement GeoJSON:", error);
+                console.error("Erreur chargement GeoJSON:", error);
                 container.select(".loading")
                     .text("Erreur de chargement de la carte");
             });

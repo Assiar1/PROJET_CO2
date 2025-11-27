@@ -50,7 +50,16 @@ graphs.push(class KayaGraph {
     // label changé et texte plus explicite
     box.append("label").text("Sélectionner le pays : ");
     // on ajoute un petit espace/marge avant le select
-    this.select = box.append("select").attr("id", "countrySelect").style("margin-left", "8px");
+    this.select = box.append("select")
+                .attr("id", "countrySelect")
+                .style("padding", "0.5rem 0.8rem")
+                .style("margin-left", "0.2rem")
+                .style("color", "#666")
+                .style("border", "1px solid #2d5a3d")
+                .style("border-color", "#2d5a3d")
+                .style("border-radius", "8px")
+                .style("cursor", "pointer")
+                .on("blur", () => this.select.style("border-color", "#2d5a3d"))
 
     // --- Légende HTML placée à droite du sélecteur (hors du SVG) pour meilleure lisibilité ---
     this.legendContainer = controls.append("div")
@@ -200,6 +209,7 @@ graphs.push(class KayaGraph {
     this.yGdp.domain(d3.extent(series.gdpPerCap, d => d.value));
     this.yInt.domain(d3.extent(series.intensity, d => d.value));
     this.yCO2.domain(d3.extent(series.co2, d => d.value));
+    
 
     // Axes
     this.gx.call(d3.axisBottom(this.x).tickFormat(d3.format("d")));
