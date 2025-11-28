@@ -62,9 +62,9 @@ graphs.push(class WorldMap {
             // S'abonner aux changements
             state.subscribe(this.update.bind(this));
             
-            console.log('✅ Carte mondiale chargée');
+            console.log(' Carte mondiale chargée');
         } catch (error) {
-            console.error('❌ Erreur chargement carte:', error);
+            console.error(' Erreur chargement carte:', error);
         }
     }
 
