@@ -78,7 +78,7 @@
                 <p class="subtitle">Décomposition des facteurs d'émissions</p>
                 <div id="kayaChart" class="vis-container"></div>
           <p class="viz-description">
-            Ce graphique illustre l’évolution des composantes de l’identité de Kaya — population, PIB par habitant, intensité énergétique, et intensité carbone — afin de montrer comment elles influencent collectivement les émissions de CO₂ d’un pays. Il permet de comprendre quels facteurs expliquent la hausse ou la baisse des émissions et d’identifier où agir pour réduire l’empreinte carbone.
+            Ce graphique illustre l’évolution des composantes de l’identité de Kaya — population, PIB par habitant, intensité énergétique, et emission carbone — afin de montrer comment elles influencent collectivement les émissions de CO₂ d’un pays. Il permet de comprendre quels facteurs expliquent la hausse ou la baisse des émissions et d’identifier où agir pour réduire l’empreinte carbone.
           </p>
             </div>
         </div>
@@ -99,92 +99,65 @@
                 <li>BINI Aladji Kassoum</li>
             </ul>
 
-            <h2>1. Objectif</h2>
-            <p>
-                Ce projet vise à explorer et visualiser l'évolution des émissions de CO₂ à l'échelle mondiale,
-                en mettant l'accent sur trois angles d'analyse complémentaires :
-            </p>
+<p>
+            Ce projet vise à analyser et visualiser l’évolution des émissions de CO₂ dans le monde à partir d’une base de données internationale. 
+            Les données couvrent plus de 190 pays sur une longue période et incluent : émissions totales, émissions sectorielles (charbon, pétrole, gaz, ciment), 
+            population, PIB et indicateurs dérivés comme le CO₂ par habitant. Le but étant de pouvoir visualiser intelligemment la place que prend le CO₂ 
+            dans nos vies et mieux comprendre son impact sur l'environnement ainsi .
+        </p>
 
-            <div class="highlight-box">
-                <strong>Trois questions centrales :</strong>
-                <ol>
-                    <li><strong>La géographie des émissions :</strong> Quels pays émettent le plus ? Comment se répartissent les émissions par habitant ?</li>
-                    <li><strong>Le lien économie-environnement :</strong> Peut-on croître économiquement tout en réduisant ses émissions ?</li>
-                    <li><strong>La transition énergétique :</strong> Quelle est la composition des émissions par source d'énergie ? Qui passe du charbon au gaz ?</li>
-                </ol>
-            </div>
+        <p>
+            Les fichiers sont importés, nettoyés et restructurés dans <code>data.js</code> puis organisés au sein d’un gestionnaire d’état réactif 
+            (<code>state.js</code>). Celui-ci centralise les interactions entre les différents composants du site en implémentant un 
+            Design Pattern observateur.  
+            Plusieurs traitements préalables sont nécessaires dont le filtrage des valeurs manquantes ou aberrantes.
+        </p>
 
-            <h2>2. Source des données</h2>
-            <p><strong>Source :</strong> <a href="https://www.kaggle.com/datasets/shreyanshdangi/co-emissions-across-countries-regions-and-sectors" target="_blank">Kaggle - CO₂ Emissions Across Countries, Regions, & Sectors</a></p>
-            <ul>
-                <li><strong>Période :</strong> 2000-2023</li>
-                <li><strong>Pays :</strong> 57 pays sélectionnés</li>
-                <li><strong>Lignes de données :</strong> 1,368</li>
-                <li><strong>Taille fichier :</strong> 0.42 MB</li>
-            </ul>
+        <h2>Visualisations</h2>
 
-            <h3>Variables utilisées</h3>
-            <ul>
-                <li><code>co2</code> : Émissions totales</li>
-                <li><code>co2_per_capita</code> : Émissions par habitant</li>
-                <li><code>gdp</code>, <code>population</code>, <code>coal_co2</code>, <code>oil_co2</code>, <code>gas_co2</code>, <code>cement_co2</code></li>
-            </ul>
+        <div class="highlight-box">
+            <p><strong>Les visualisations ont été choisies pour couvrir différents angles d’analyse :</strong></p>
+        </div>
 
-            <h2>3. Visualisations</h2>
-            <ul>
-                <li><strong>Carte mondiale choroplèthe :</strong> Répartition géographique des émissions</li>
-                <li><strong>Scatterplot PIB vs CO₂ :</strong> Corrélation entre économie et émissions</li>
-                <li><strong>Stacked Area :</strong> Composition des émissions par source d'énergie</li>
-                <li><strong>Kaya Identity :</strong> Décomposition des facteurs d'émissions</li>
-            </ul>
+        <ul>
+            <li>
+                <strong>Carte mondiale :</strong> met en évidence l’évolution des émissions dans le temps pour chaque pays. 
+                Les principaux canaux visuels sont la position géographique, la couleur (intensité des émissions) et l’évolution 
+                du gradient dans le temps, permettant de percevoir rapidement les trajectoires de long terme et les contrastes régionaux.
+            </li>
 
-            <h2>4. Sélecteurs et interactions</h2>
-            <ul>
-                <li>Année : Slider 2000–2023</li>
-                <li>Toutes les visualisations sont synchronisées</li>
-            </ul>
+            <li>
+                <strong>Diagramme PIB / CO₂ (Gapminder) :</strong> visualise la relation entre développement économique, taille 
+                de la population et niveau d’émissions, grâce à des échelles adaptées (PIB logarithmique). Les canaux visuels clés 
+                sont la position (PIB en x, CO₂ en y), la taille des bulles (population). En plus de l’ajout de l’épaisseur des bords 
+                qui est proportionnelle aux émissions CO₂/habitant.
+            </li>
 
-            <h2>5. Technologies utilisées</h2>
-            <div class="highlight-box">
-                <strong>Contrainte :</strong> Utilisation exclusive de <strong>D3.js v7</strong>.
-            </div>
-            <ul>
-                <li><strong>HTML5 / CSS3 / JS ES6+</strong></li>
-                <li><strong>D3.js</strong> pour les graphiques</li>
-                <li><strong>TopoJSON</strong> pour les cartes</li>
-            </ul>
+            <li>
+                <strong>Courbes d’évolution multi-pays (LineChart) :</strong> permettent de comparer plusieurs pays simultanément, 
+                avec un suivi précis de l’année courante.
+            </li>
 
-            <h2>6. Traitement des données</h2>
-            <ol>
-                <li>Filtrage de la période 2000–2023</li>
-                <li>Sélection des principaux pays</li>
-                <li>Compression et conversion CSV → JS</li>
-            </ol>
+            <li>
+                <strong>Graphique de l’identité de Kaya :</strong> décompose les émissions en quatre facteurs 
+                (population, richesse, intensité énergétique, intensité carbone), ce qui aide à comprendre les dynamiques 
+                propres à chaque pays.
+            </li>
 
-            <div class="highlight-box">
-                <p><strong>Pourquoi cette réduction ?</strong> Le dataset complet contenait 40 000 lignes. Une compression intelligente a permis de réduire 90% de la taille tout en conservant 95% de l'information utile.</p>
-            </div>
+            <li>
+                <strong>Visualisations sectorielles (SectorChart et StackedArea) :</strong> montrent la répartition par source d’énergie 
+                et son évolution historique, offrant une lecture directe des transitions énergétiques. Ils s’appuient sur la couleur 
+                pour distinguer les secteurs, la surface empilée ou les barres pour visualiser la part relative, et la variation 
+                temporelle pour mettre en lumière les transitions énergétiques à long terme.
+            </li>
+        </ul>
 
-            <h2>7. Insights et analyses</h2>
-            <ul>
-                <li><strong>Chine :</strong> Plus gros émetteur depuis 2005</li>
-                <li><strong>États-Unis :</strong> En baisse depuis 2007</li>
-                <li><strong>Inde :</strong> +150% d'émissions depuis 2000</li>
-                <li><strong>Europe :</strong> -25% depuis 2005</li>
-            </ul>
-
-            <h2>8. Références</h2>
-            <ul>
-                <li><a href="https://www.kaggle.com/datasets/shreyanshdangi/co-emissions-across-countries-regions-and-sectors" target="_blank">Dataset Kaggle</a></li>
-                <li><a href="https://d3js.org/" target="_blank">D3.js Documentation</a></li>
-                <li><a href="https://ourworldindata.org/co2-emissions" target="_blank">Our World in Data</a></li>
-            </ul>
-
-            <div class="highlight-box" style="margin-top: 2rem;">
-                <strong>Année Universitaire 2025/2026</strong><br>
-                <strong>Ensimag - 3ème année</strong><br>
-                <strong>Professeurs :</strong> Renaud Blanch, Sylvain Bouveret
-            </div>
+        <h2>Synchronisation</h2>
+        <p>
+            L’ensemble est synchronisé grâce à un état global : changer l’année met instantanément à jour toutes les représentations 
+            qui dépendent sur le temps. Le résultat est un outil interactif, cohérent et pédagogique permettant de comprendre à la fois 
+            l’évolution globale des émissions et les trajectoires spécifiques de chaque pays.
+        </p>
         </div>
     </div>
 
