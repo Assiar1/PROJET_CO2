@@ -170,8 +170,8 @@ class WorldMap {
                     
                     const oldestData = temporalData[0];
                     const recentData = temporalData[temporalData.length - 1];
-                    const oldestYear = oldestData.year;
-                    const recentYear = recentData.year;
+                    const oldestYear = 1930;
+                    const recentYear = 2022;
                     
                     // Calculer la tendance
                     const change = recentData.co2 - oldestData.co2;
