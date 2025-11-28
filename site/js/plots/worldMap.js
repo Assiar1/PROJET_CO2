@@ -90,7 +90,7 @@ class WorldMap {
                             .attr("r", "50%");
                         
                         // Créer les stops du gradient basés sur l'évolution des émissions
-                        const years = [1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023];
+                        const years = [1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2022];
                         const yearData = years.map(year => {
                             const data = temporalData.find(d => d.year === year);
                             return data ? data.co2 : 0;
@@ -312,7 +312,7 @@ class WorldMap {
                 .style("font-weight", "bold")
                 .style("fill", "white")
                 .style("text-shadow", "0 0 3px rgba(0,0,0,0.5)")
-                .text("2023");
+                .text("2022");
             
             legendGroup.append("text")
                 .attr("x", 15)
@@ -350,7 +350,7 @@ class WorldMap {
                 .attr("text-anchor", "middle")
                 .style("font-size", "10px")
                 .style("fill", "#666")
-                .text("Bord → Centre = 1930 → 2023");
+                .text("Bord → Centre = 1930 → 2022");
         }
         
         // Obtenir les données temporelles d'un pays
