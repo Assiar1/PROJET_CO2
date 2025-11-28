@@ -39,6 +39,11 @@ graphs.push(class KayaGraph {
     // Facteur et unité calculés dynamiquement pour l'intensité
     this.intensityFactor = 1;
     this.intensityUnit = 'kg CO₂/$';
+
+    // Optionnel : forcer une mise à l'échelle pour CO2. Si null => auto-scale
+    // Pour obtenir par exemple 0.0004 -> 4.0, définis this.co2DisplayFactor = 10000;
+    this.co2DisplayFactor = null;
+    this.co2DisplayUnit = null;
   }
 
   async initialize() {
@@ -140,7 +145,7 @@ graphs.push(class KayaGraph {
       { key: 'population', label: 'Population (M)', color: this.colors.population },
       { key: 'gdpPerCap', label: 'PIB/hab (k$)', color: this.colors.gdpPerCap },
       { key: 'intensity', label: "Intensité", color: this.colors.intensity },
-      { key: 'co2', label: 'CO₂ total (Mt)', color: this.colors.co2 }
+      { key: 'co2', label: 'CO₂ total', color: this.colors.co2 }
     ];
 
     // Nettoie puis recrée
@@ -194,13 +199,40 @@ graphs.push(class KayaGraph {
       this.intensityUnit = 'kg CO₂/$';
     }
 
-    // Séries: on applique le facteur d'affichage uniquement sur la valeur montrée et tracée
+    // --- Calcul et mise à l'échelle pour CO2 total (auto-scale ou forcé)
+    // raw in Mt
+    const rawCo2MtArray = rows.map(d => (d.co2 > 0) ? (d.co2 / 1e6) : NaN);
+    const rawCo2Max = d3.max(rawCo2MtArray.filter(v => isFinite(v)));
+
+    let co2Factor, co2Unit;
+    if (this.co2DisplayFactor != null) {
+      co2Factor = this.co2DisplayFactor;
+      co2Unit = this.co2DisplayUnit || `Mt ×${co2Factor}`;
+    } else {
+      // auto-scale to readable units: Mt, kt, t
+      if (!isFinite(rawCo2Max) || rawCo2Max === undefined) {
+        co2Factor = 1;
+        co2Unit = 'Mt';
+      } else if (rawCo2Max >= 1) {
+        co2Factor = 1; // Mt
+        co2Unit = 'Mt';
+      } else if (rawCo2Max >= 0.001) {
+        co2Factor = 1000; // kt
+        co2Unit = 'kt';
+      } else {
+        co2Factor = 1e6; // t
+        co2Unit = 't';
+      }
+    }
+
+    // Séries: on applique les facteurs d'affichage uniquement sur la valeur montrée et tracée
     const series = {
       population: rows.map(d => ({ year: d.year, value: d.population > 0 ? d.population / 1e6 : NaN })),
       gdpPerCap: rows.map(d => ({ year: d.year, value: d.gdp > 0 && d.population > 0 ? (d.gdp / d.population) / 1000 : NaN })),
       // intensité = (co2 / gdp) [kg/$] multiplié par factor pour une unité lisible
       intensity: rows.map(d => ({ year: d.year, value: (d.gdp > 0 && d.co2 > 0) ? (d.co2 / d.gdp) * this.intensityFactor : NaN })),
-      co2: rows.map(d => ({ year: d.year, value: d.co2 > 0 ? d.co2 / 1e6 : NaN }))
+      // co2 displayed = (d.co2 / 1e6) * co2Factor => in chosen unit
+      co2: rows.map(d => ({ year: d.year, value: d.co2 > 0 ? (d.co2 / 1e6) * co2Factor : NaN }))
     };
 
     // Domaines
@@ -209,7 +241,6 @@ graphs.push(class KayaGraph {
     this.yGdp.domain(d3.extent(series.gdpPerCap, d => d.value));
     this.yInt.domain(d3.extent(series.intensity, d => d.value));
     this.yCO2.domain(d3.extent(series.co2, d => d.value));
-    
 
     // Axes
     this.gx.call(d3.axisBottom(this.x).tickFormat(d3.format("d")));
@@ -217,11 +248,12 @@ graphs.push(class KayaGraph {
     this.gy2.call(d3.axisRight(this.yGdp)).selectAll("text").attr("fill", this.colors.gdpPerCap);
 
     // afficher l'échelle de l'intensité avec des ticks lisibles
-    // on adapte le format des ticks selon le facteur
     const intensityTickFormat = this.intensityFactor === 1 ? d3.format(".3f") : d3.format(",.2f");
     this.gy3.call(d3.axisRight(this.yInt).tickFormat(intensityTickFormat)).selectAll("text").attr("fill", this.colors.intensity);
 
-    this.gy4.call(d3.axisRight(this.yCO2)).selectAll("text").attr("fill", this.colors.co2);
+    // co2 axis format: adapter selon co2Factor (plus de décimales si nécessaire)
+    const co2TickFormat = (co2Factor === 1) ? d3.format(",.2f") : d3.format(",.2f");
+    this.gy4.call(d3.axisRight(this.yCO2).tickFormat(co2TickFormat)).selectAll("text").attr("fill", this.colors.co2);
 
     // Nettoyer les anciennes courbes et points (la légende HTML est hors du SVG)
     this.chartGroup.selectAll(".curve").remove();
@@ -232,7 +264,7 @@ graphs.push(class KayaGraph {
     this.draw(series.gdpPerCap, this.yGdp, this.colors.gdpPerCap, "PIB/hab (k$)", "gdpPerCap");
     // passer l'unité calculée dans le labelPretty pour affichage dans la tooltip
     this.draw(series.intensity, this.yInt, this.colors.intensity, `Intensité (${this.intensityUnit})`, "intensity");
-    this.draw(series.co2, this.yCO2, this.colors.co2, "CO₂ total (Mt)", "co2");
+    this.draw(series.co2, this.yCO2, this.colors.co2, `CO₂ total (${co2Unit})`, "co2");
 
     // Mettre à jour la légende HTML si besoin (couleurs modifiables plus tard)
     this.renderHtmlLegend();
@@ -265,7 +297,7 @@ graphs.push(class KayaGraph {
       'population': 'M',
       'gdpPerCap': 'k$',
       'intensity': '', // déjà inclus dans labelPretty pour éviter incohérence
-      'co2': 'Mt'
+      'co2': '' // included in labelPretty
     };
 
     this.chartGroup.selectAll(`.point-${classId}`)
