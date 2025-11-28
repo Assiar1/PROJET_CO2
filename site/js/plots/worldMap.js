@@ -1,11 +1,11 @@
 /**
  * Carte mondiale avec dégradé radial montrant l'évolution temporelle
- * Bord du pays = 2000 (début) → Centre = 2023 (récent)
  */
 
 class WorldMap {
     async initialize() {
         const container = d3.select("#worldMap");
+
         const width = 800;
         const height = 600;
         
@@ -24,10 +24,6 @@ class WorldMap {
             .translate([width / 2, height / 2]);
         
         const path = d3.geoPath().projection(projection);
-        
-        // Échelle de couleur pour l'évolution temporelle
-        const timeColorScale = d3.scaleSequential(d3.interpolateRdYlGn)
-            .domain([1930, 2023]);
         
         const tooltip = d3.select("#tooltip");
         
@@ -54,35 +50,32 @@ class WorldMap {
                     .attr("data-iso", d => d.id)
                     .on("mouseover", handleMouseOver)
                     .on("mouseout", handleMouseOut)
+                    .on("mousemove", handleMouseMove)
                     .on("click", handleClick);
                 
-function update(currentState) {
-    countries.each(function(d) {
-        const iso = d.id;
-        const countryName = state.getCountryName(iso); // ← AJOUT
-        const countryPath = d3.select(this);
-        const temporalData = getCountryTemporalData(iso);
-        
-        // FILTRE ANTARCTICA - Masquer complètement
-        if (countryName === "Antarctica") {
-            countryPath
-                .attr("fill", "transparent")
-                .attr("stroke", "transparent")
-                .style("cursor", "default")
-                .classed("no-data", true);
-            return;
-        }
-        
-        if (temporalData.length === 0) {
-            countryPath
-                .attr("fill", "#e0e0e0")
-                .classed("no-data", true);
-            return;
-        }
-                  
+                function update(currentState) {
+                    countries.each(function(d) {
+                        const iso = d.id;
+                        const countryName = state.getCountryName(iso);
+                        const countryPath = d3.select(this);
+                        const temporalData = getCountryTemporalData(iso);
                         
-                        // Calculer le centroïde du pays
-                        const centroid = path.centroid(d);
+                        // FILTRE ANTARCTICA - Masquer complètement
+                        if (countryName === "Antarctica") {
+                            countryPath
+                                .attr("fill", "transparent")
+                                .attr("stroke", "transparent")
+                                .style("cursor", "default")
+                                .classed("no-data", true);
+                            return;
+                        }
+                        
+                        if (temporalData.length === 0) {
+                            countryPath
+                                .attr("fill", "#e0e0e0")
+                                .classed("no-data", true);
+                            return;
+                        }
                         
                         // Créer un gradient radial unique pour ce pays
                         const gradientId = `radial-gradient-${iso}`;
@@ -97,7 +90,7 @@ function update(currentState) {
                             .attr("r", "50%");
                         
                         // Créer les stops du gradient basés sur l'évolution des émissions
-                       const years = [1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020,2023];
+                        const years = [1930, 1935, 1940, 1945, 1950, 1955, 1960, 1965, 1970, 1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2023];
                         const yearData = years.map(year => {
                             const data = temporalData.find(d => d.year === year);
                             return data ? data.co2 : 0;
@@ -113,9 +106,8 @@ function update(currentState) {
                             .range([0.3, 1]);
                         
                         // Créer les stops du gradient
-                        // Centre (2023) → Bord (2000)
-                        const recentData = temporalData[temporalData.length - 1]; // 2023
-                        const oldData = temporalData[0]; // 2000
+                        const recentData = temporalData[temporalData.length - 1];
+                        const oldData = temporalData[0];
                         
                         const recentIntensity = intensityScale(recentData.co2);
                         const oldIntensity = intensityScale(oldData.co2);
@@ -167,36 +159,40 @@ function update(currentState) {
                 
                 function handleMouseOver(event, d) {
                     const iso = d.id;
+                    const countryName = state.getCountryName(iso);
+                    
+                    // FILTRE ANTARCTICA
+                    if (countryName === "Antarctica") return;
+                    
                     const temporalData = getCountryTemporalData(iso);
                     
                     if (temporalData.length === 0) return;
                     
                     const oldestData = temporalData[0];
                     const recentData = temporalData[temporalData.length - 1];
-                    const name = state.getCountryName(iso);
+                    const oldestYear = oldestData.year;
+                    const recentYear = recentData.year;
                     
                     // Calculer la tendance
                     const change = recentData.co2 - oldestData.co2;
-                    const changePercent = ((change / oldestData.co2) * 100).toFixed(1);
+                    const changePercent = oldestData.co2 > 0 ? ((change / oldestData.co2) * 100).toFixed(1) : 0;
                     const trend = change > 0 ? "📈" : "📉";
                     const trendColor = change > 0 ? "#ef4444" : "#4ade80";
                     
                     tooltip
-                        .style("display", "block")
-                        .style("left", (event.pageX + 15) + "px")
-                        .style("top", (event.pageY - 15) + "px")
+                        .style("opacity", 1)
                         .html(`
-                            <strong>${name}</strong><br>
+                            <strong>${countryName}</strong><br>
                             <div style="margin: 8px 0; padding: 8px; background: #f9fafb; border-radius: 4px;">
-                                <strong>Évolution 2000-2023 ${trend}</strong><br>
-                                <span style="color: #4ade80;">1930: ${utils.formatNumber(oldestData.co2, 2)} Mt</span><br>
-                                <span style="color: ${trendColor};">2023: ${utils.formatNumber(recentData.co2, 2)} Mt</span><br>
+                                <strong>Évolution ${oldestYear}-${recentYear} ${trend}</strong><br>
+                                <span style="color: #4ade80;">${oldestYear}: ${utils.formatNumber(oldestData.co2, 2)} Mt</span><br>
+                                <span style="color: ${trendColor};">${recentYear}: ${utils.formatNumber(recentData.co2, 2)} Mt</span><br>
                                 <span style="color: ${trendColor}; font-weight: bold;">
                                     ${change > 0 ? '+' : ''}${changePercent}%
                                 </span>
                             </div>
                             <small style="color: #999;">
-                                 Centre = 2023, Bord = 1930<br>
+                                💡 Centre = ${recentYear}, Bord = ${oldestYear}<br>
                                 Cliquez pour voir les détails
                             </small>
                         `);
@@ -206,8 +202,14 @@ function update(currentState) {
                         .attr("stroke-width", 2);
                 }
                 
+                function handleMouseMove(event) {
+                    tooltip
+                        .style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 15) + "px");
+                }
+                
                 function handleMouseOut(event, d) {
-                    tooltip.style("display", "none");
+                    tooltip.style("opacity", 0);
                     
                     const iso = d.id;
                     const isSelected = state.selectedCountry === iso;
@@ -223,14 +225,14 @@ function update(currentState) {
                     
                     // FILTRE ANTARCTICA
                     if (countryName === "Antarctica") {
-                        console.log(" Antarctica ignoré - pas de données");
-                        return; // Ne rien faire
+                        console.log("Antarctica ignoré - pas de données");
+                        return;
                     }
                     
                     const temporalData = getCountryTemporalData(iso);
                     
                     if (temporalData.length > 0) {
-                        console.log(" Clic sur:", countryName);
+                        console.log("Clic sur:", countryName);
                         state.selectCountryForEnergy(iso);
                     }
                 }
